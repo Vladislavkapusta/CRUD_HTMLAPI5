@@ -1,25 +1,65 @@
-import logo from './logo.svg';
-import './App.css';
 
-function App() {
+import './App.css';
+import React, { useState, useEffect } from 'react';
+
+const App = () => {
+  const [cards, setCards] = useState([]);
+  
+  useEffect(() => {
+    fetchCards();
+  }, []);
+
+  const fetchCards = async () => {
+    const response = await fetch('https://jsonplaceholder.typicode.com/posts');
+    const data = await response.json();
+    setCards(data);
+  };
+
+  const handleCreateCard = () => {
+    const promptInput = prompt('Введите содержимое новой карточки:');
+    if (promptInput) {
+      const newCard = {
+        title: promptInput,
+        id: cards.length + 1
+      };
+      setCards([...cards, newCard]);
+    }
+  };
+
+  const handleEditCard = (id) => {
+    const promptInput = prompt('Измените содержимое карточки:');
+    if (promptInput) {
+      const updatedCards = cards.map(card => {
+        if (card.id === id) {
+          return { ...card, title: promptInput };
+        }
+        return card;
+      });
+      setCards(updatedCards);
+    }
+  };
+
+  const handleDeleteCard = (id) => {
+    const updatedCards = cards.filter(card => card.id !== id);
+    setCards(updatedCards);
+  };
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
+    <div>
+      <header>
+        <button onClick={handleCreateCard}>Создать</button>
       </header>
+      <div className="card-container">
+        {cards.map(card => (
+          <div key={card.id} className="card">
+            <p>{card.title}</p>
+            <button onClick={() => handleEditCard(card.id)}>Редактировать</button>
+            <button onClick={() => handleDeleteCard(card.id)}>Удалить</button>
+          </div>
+        ))}
+      </div>
     </div>
   );
-}
+};
 
 export default App;
